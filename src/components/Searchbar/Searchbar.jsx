@@ -17,6 +17,7 @@ export const Searchbar = ({ onSubmit }) => {
       toast.error('Please enter a search value');
       return;
     }
+
     onSubmit(query);
   };
 

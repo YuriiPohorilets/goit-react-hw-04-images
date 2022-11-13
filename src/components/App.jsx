@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
@@ -20,36 +20,37 @@ export const App = () => {
       return;
     }
 
+    setLoading(true);
+
     const fetchData = async () => {
       const { hits, totalHits } = await fetchImages(query, page);
-      setLoading(false);
-      setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
-      setTotalHits(() =>
-        page === 1
-          ? totalHits - hits.length
-          : totalHits - [...images, ...hits].length
-      );
 
       if (totalHits === 0) {
         toast.error('Nothing was found for your request');
         setLoading(false);
         return;
       }
+
+      setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
+      setTotalHits(prevTotalHits =>
+        page === 1 ? totalHits - hits.length : prevTotalHits - hits.length
+      );
+      setLoading(false);
     };
-    setLoading(true);
 
-    fetchData().catch(error =>
-      toast.error(`Oops! Something went wrong! ${error}`)
-    );
+    fetchData().catch(error => {
+      toast.error(`Oops! Something went wrong! ${error}`);
+      setLoading(false);
+    });
   }, [page, query]);
-
-  const handleLoadMore = () => {
-    setPage(prevPage => prevPage + 1);
-  };
 
   const handleQuerySubmit = query => {
     setQuery(query);
     setPage(1);
+  };
+
+  const handleLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
   return (
